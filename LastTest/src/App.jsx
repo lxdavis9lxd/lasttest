@@ -8,8 +8,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Menu } from "lucide-react";
+import { Menu, AlertCircle } from "lucide-react";
 import { ApiClient } from "./utils/api.js";
 import Login from "./pages/auth/Login.jsx";
 import Register from "./pages/auth/Register.jsx";
@@ -51,14 +55,17 @@ function Dashboard() {
 
       {/* Sidebar (desktop) */}
       <aside className="hidden md:flex flex-col w-64 border-r bg-white">
-        <div className="p-4 border-b font-semibold">Menu</div>
-        <nav className="p-4 space-y-1">
-          {navLinks.map((l) => (
-            <a key={l.label} href={l.href} className="block px-2 py-2 rounded hover:bg-gray-100 text-sm">
-              {l.label}
-            </a>
-          ))}
-        </nav>
+        <div className="p-4 font-semibold">Menu</div>
+        <Separator />
+        <ScrollArea className="flex-1">
+          <nav className="p-4 space-y-1">
+            {navLinks.map((l) => (
+              <Button key={l.label} variant="ghost" className="justify-start w-full" asChild>
+                <a href={l.href}>{l.label}</a>
+              </Button>
+            ))}
+          </nav>
+        </ScrollArea>
       </aside>
 
       {/* Main content */}
@@ -74,14 +81,17 @@ function Dashboard() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0">
-              <div className="p-4 border-b font-semibold">Menu</div>
-              <nav className="p-4 space-y-1">
-                {navLinks.map((l) => (
-                  <a key={l.label} href={l.href} className="block px-2 py-2 rounded hover:bg-gray-100 text-sm">
-                    {l.label}
-                  </a>
-                ))}
-              </nav>
+              <div className="p-4 font-semibold">Menu</div>
+              <Separator />
+              <ScrollArea className="flex-1 h-[calc(100%-3rem)]">
+                <nav className="p-4 space-y-1">
+                  {navLinks.map((l) => (
+                    <Button key={l.label} variant="ghost" className="justify-start w-full" asChild>
+                      <a href={l.href}>{l.label}</a>
+                    </Button>
+                  ))}
+                </nav>
+              </ScrollArea>
             </SheetContent>
           </Sheet>
           <h1 className="text-xl font-bold">BDPA React Scaffold and Demo</h1>
@@ -158,7 +168,11 @@ function Dashboard() {
                       <TableRow key={row.name}>
                         <TableCell>{row.name}</TableCell>
                         <TableCell>{row.course}</TableCell>
-                        <TableCell>{row.status}</TableCell>
+                        <TableCell>
+                          <Badge variant={row.status === "Enrolled" ? "default" : "secondary"}>
+                            {row.status}
+                          </Badge>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -186,16 +200,24 @@ function Dashboard() {
                 <Button onClick={fetchPosts} disabled={loadingPosts}>
                   {loadingPosts ? "Loading..." : "Fetch Posts"}
                 </Button>
-                {postsError && <span className="text-sm text-red-600">{postsError}</span>}
               </div>
+              {postsError && (
+                <Alert variant="destructive" className="mb-3">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{postsError}</AlertDescription>
+                </Alert>
+              )}
               {posts.length > 0 && (
-                <ul className="list-disc pl-6 space-y-1">
-                  {posts.map((p) => (
-                    <li key={p.id} className="text-sm">
-                      <span className="font-medium">#{p.id}</span> {p.title}
-                    </li>
-                  ))}
-                </ul>
+                <ScrollArea className="h-48 rounded-md border p-3">
+                  <div className="space-y-2">
+                    {posts.map((p) => (
+                      <div key={p.id} className="text-sm">
+                        <Badge variant="outline" className="mr-2">#{p.id}</Badge>
+                        {p.title}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               )}
             </CardContent>
           </Card>
@@ -235,7 +257,7 @@ export default function App() {
         element={
           <Login
             onSubmit={() => {
-              alert("Login submitted!");
+              toast.success("Login submitted!");
               navigate("/");
             }}
           />
@@ -246,7 +268,7 @@ export default function App() {
         element={
           <Register
             onSubmit={() => {
-              alert("Registration submitted!");
+              toast.success("Registration submitted!");
               navigate("/");
             }}
           />
